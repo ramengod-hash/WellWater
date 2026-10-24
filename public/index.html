@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WellWater — Know What's in Your Water</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & tokens ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:      #0B2240;
+  --blue:      #1C4E80;
+  --blue-mid:  #2D6DAD;
+  --sky:       #E8F2FC;
+  --sky-deep:  #C9E0F5;
+  --amber:     #E8A020;
+  --amber-bg:  #FEF3DC;
+  --red:       #C0392B;
+  --red-bg:    #FDEDEB;
+  --green:     #1A7A4A;
+  --green-bg:  #E6F4ED;
+  --text:      #0F1923;
+  --text-2:    #3A4E63;
+  --text-3:    #6B7E91;
+  --border:    #D0DCE8;
+  --surface:   #F4F8FC;
+  --white:     #FFFFFF;
+  --radius:    10px;
+  --radius-lg: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --navy:      #A8C8E8;
+    --blue:      #5B9DD9;
+    --blue-mid:  #7AB8E8;
+    --sky:       #0D1E30;
+    --sky-deep:  #142840;
+    --amber:     #F5B840;
+    --amber-bg:  #2A1E08;
+    --red:       #E57368;
+    --red-bg:    #2A0D0A;
+    --green:     #4EC980;
+    --green-bg:  #081A10;
+    --text:      #E8F0F8;
+    --text-2:    #A8BDD0;
+    --text-3:    #6B8099;
+    --border:    #1E3450;
+    --surface:   #0A1828;
+    --white:     #0D2038;
+  }
+}
+
+html { font-family: 'Inter', system-ui, sans-serif; color: var(--text); background: var(--white); scroll-behavior: smooth; }
+body { min-height: 100vh; }
+button { font-family: inherit; cursor: pointer; }
+input { font-family: inherit; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Layout helpers ───────────────────────────────────────────── */
+.container { max-width: 740px; margin: 0 auto; padding: 0 1.25rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+/* ── Header ───────────────────────────────────────────────────── */
+header {
+  background: var(--navy);
+  padding: 1rem 0;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-inner { display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--blue-mid);
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 18px; height: 18px; }
+.logo-name { font-family: 'DM Serif Display', serif; font-size: 20px; color: #fff; letter-spacing: -0.01em; }
+.header-data-badge { font-size: 11px; color: rgba(255,255,255,0.55); }
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.hero {
+  background: var(--navy);
+  padding: 3.5rem 0 0;
+  position: relative; overflow: hidden;
+}
+.hero-contours {
+  position: absolute; inset: 0; opacity: 0.06; pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; }
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  line-height: 1.15;
+  max-width: 560px;
+  margin-bottom: 1rem;
+}
+.hero p {
+  color: rgba(255,255,255,0.7);
+  font-size: 1rem;
+  max-width: 480px;
+  line-height: 1.65;
+  margin-bottom: 2rem;
+}
+.hero-data-note {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; color: rgba(255,255,255,0.45);
+  margin-bottom: 2.5rem;
+}
+.hero-data-note::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+/* Search box */
+.search-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0;
+  backdrop-filter: blur(4px);
+}
+.search-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 10px; display: block; }
+.search-row { display: flex; gap: 8px; }
+.search-input {
+  flex: 1; padding: 0.75rem 1rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.1);
+  color: #fff; font-size: 15px;
+  outline: none; transition: border-color 0.15s;
+}
+.search-input::placeholder { color: rgba(255,255,255,0.4); }
+.search-input:focus { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); }
+.search-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--blue-mid); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 500;
+  white-space: nowrap; transition: background 0.15s;
+}
+.search-btn:hover { background: #3882C4; }
+.search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Wave divider */
+.hero-wave { display: block; width: 100%; margin-bottom: -2px; color: var(--white); }
+
+/* ── Main content ─────────────────────────────────────────────── */
+main { padding: 2rem 0 4rem; }
+
+/* ── Loading ──────────────────────────────────────────────────── */
+.loading-state { text-align: center; padding: 3rem 1rem; }
+.loading-spinner {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-state p { color: var(--text-3); font-size: 14px; }
+
+/* ── Error ────────────────────────────────────────────────────── */
+.error-state {
+  background: var(--red-bg); border: 1px solid #F5BDB8;
+  border-radius: var(--radius); padding: 1rem 1.25rem;
+  color: var(--red); font-size: 14px; margin-top: 1.5rem;
+}
+
+/* ── Results ──────────────────────────────────────────────────── */
+.results { margin-top: 2rem; }
+
+/* System header */
+.system-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap;
+}
+.system-name { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--text); line-height: 1.2; }
+.system-meta { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+.pwsid-badge {
+  font-size: 11px; color: var(--text-3); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 3px 8px; white-space: nowrap; margin-top: 4px; display: inline-block;
+}
+
+/* Risk score — the hero of the result */
+.risk-card {
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  border: 1.5px solid transparent;
+}
+.risk-card.low    { background: var(--green-bg); border-color: #A8DFC0; }
+.risk-card.moderate { background: var(--amber-bg); border-color: #F5D898; }
+.risk-card.high   { background: var(--red-bg); border-color: #F5BDB8; }
+.risk-card.critical { background: var(--red-bg); border-color: var(--red); }
+.risk-card.unknown { background: var(--surface); border-color: var(--border); }
+
+.risk-inner { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.risk-score-display { text-align: center; flex-shrink: 0; }
+.risk-level-word {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.4rem; line-height: 1;
+}
+.risk-card.low    .risk-level-word { color: var(--green); }
+.risk-card.moderate .risk-level-word { color: #B87800; }
+.risk-card.high   .risk-level-word,
+.risk-card.critical .risk-level-word { color: var(--red); }
+.risk-card.unknown .risk-level-word { color: var(--text-3); }
+
+.risk-label { font-size: 11px; color: var(--text-3); margin-top: 2px; text-align: center; }
+.risk-divider { width: 1px; height: 60px; background: var(--border); flex-shrink: 0; }
+.risk-explanation { font-size: 14px; line-height: 1.65; color: var(--text-2); flex: 1; min-width: 180px; }
+.risk-explanation strong { color: var(--text); }
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px; margin-bottom: 1.5rem;
+}
+.stat-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem;
+}
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--text); line-height: 1; }
+.stat-num.bad { color: var(--red); }
+.stat-num.warn { color: #B87800; }
+.stat-num.good { color: var(--green); }
+.stat-desc { font-size: 12px; color: var(--text-3); margin-top: 4px; line-height: 1.4; }
+
+/* Violations timeline */
+.section-heading {
+  font-size: 13px; font-weight: 600; color: var(--text-2);
+  margin-bottom: 0.75rem; padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.timeline { position: relative; padding-left: 20px; margin-bottom: 1.75rem; }
+.timeline::before {
+  content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px;
+  width: 2px; background: var(--border);
+}
+.timeline-item {
+  position: relative; margin-bottom: 1rem;
+}
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -17px; top: 4px;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid var(--white);
+}
+.timeline-dot.health { background: var(--red); }
+.timeline-dot.monitor { background: var(--amber); }
+.timeline-dot.other { background: var(--text-3); }
+.timeline-dot.resolved { background: var(--green); }
+
+.viol-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.85rem 1rem;
+}
+.viol-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.viol-name { font-size: 13.5px; font-weight: 500; color: var(--text); }
+.viol-status {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+}
+.viol-status.open { background: var(--red-bg); color: var(--red); }
+.viol-status.resolved { background: var(--green-bg); color: var(--green); }
+.viol-meta { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+.viol-type-chip {
+  display: inline-block; font-size: 11px; padding: 2px 7px;
+  border-radius: 4px; margin-top: 6px; font-weight: 500;
+}
+.viol-type-chip.health { background: var(--red-bg); color: var(--red); }
+.viol-type-chip.monitor { background: var(--amber-bg); color: #96680E; }
+.viol-type-chip.other { background: var(--surface); color: var(--text-3); border: 1px solid var(--border); }
+
+.no-violations {
+  background: var(--green-bg); border: 1px solid #A8DFC0;
+  border-radius: var(--radius); padding: 1rem 1.25rem;
+  color: var(--green); font-size: 14px;
+}
+
+/* What to test for */
+.test-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.75rem; }
+@media (max-width: 480px) { .test-grid { grid-template-columns: 1fr; } }
+.test-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.85rem 1rem;
+  font-size: 13px; color: var(--text-2);
+}
+.test-item strong { display: block; color: var(--text); margin-bottom: 2px; }
+
+/* Constituent report button */
+.report-section {
+  background: var(--sky); border: 1px solid var(--sky-deep);
+  border-radius: var(--radius-lg); padding: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.report-section h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.report-section p { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 1rem; }
+.report-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0.7rem 1.25rem; background: var(--navy); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 500; transition: background 0.15s;
+}
+.report-btn:hover { background: var(--blue); }
+.report-btn svg { width: 16px; height: 16px; }
+
+/* Data source footer */
+.data-footer {
+  margin-top: 2.5rem; padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-3); line-height: 1.6;
+}
+.data-footer a { color: var(--blue); }
+
+/* Empty / welcome state */
+.welcome {
+  padding: 2.5rem 0;
+  text-align: left;
+}
+.welcome-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem;
+}
+.welcome p { font-size: 14px; color: var(--text-2); line-height: 1.65; max-width: 540px; }
+.stat-highlight {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  background: var(--sky); border: 1px solid var(--sky-deep);
+  border-radius: var(--radius); padding: 0.75rem 1rem;
+  margin: 1rem 0; font-size: 13px; color: var(--text-2);
+}
+.stat-highlight strong { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--red); }
+.examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.25rem; }
+.example-chip {
+  font-size: 12.5px; padding: 6px 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text-2);
+  cursor: pointer; transition: all 0.15s;
+}
+.example-chip:hover { background: var(--sky); border-color: var(--sky-deep); color: var(--navy); }
+
+/* Generated report modal */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 200;
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  max-width: 560px; width: 100%; max-height: 80vh;
+  overflow-y: auto; padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal h2 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; margin-bottom: 1rem; }
+.modal-letter {
+  font-size: 13.5px; color: var(--text-2); line-height: 1.75;
+  white-space: pre-wrap; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.25rem; margin-bottom: 1rem;
+}
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-copy, .btn-email {
+  padding: 0.65rem 1.1rem; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; border: none;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-copy { background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
+.btn-copy:hover { background: var(--sky); }
+.btn-email { background: var(--navy); color: #fff; }
+.btn-email:hover { background: var(--blue); }
+.btn-close { background: none; border: none; color: var(--text-3); font-size: 13px; cursor: pointer; margin-left: auto; padding: 0.65rem 0; }
+
+/* Responsive */
+@media (max-width: 520px) {
+  .system-header { flex-direction: column; }
+  .risk-divider { display: none; }
+  .hero h1 { font-size: 1.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner { animation: none; border-top-color: var(--blue); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C6 8 4 12 4 15a8 8 0 0016 0c0-3-2-7-8-13z"/>
+        </svg>
+      </div>
+      <span class="logo-name">WellWater</span>
+    </div>
+    <span class="header-data-badge">Powered by EPA SDWIS · Safe Drinking Water Act data</span>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero" aria-labelledby="hero-heading">
+  <!-- Topographic contour lines SVG texture -->
+  <svg class="hero-contours" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="#fff" stroke-width="1">
+      <ellipse cx="400" cy="150" rx="380" ry="100"/>
+      <ellipse cx="400" cy="150" rx="310" ry="78"/>
+      <ellipse cx="400" cy="150" rx="240" ry="58"/>
+      <ellipse cx="400" cy="150" rx="170" ry="40"/>
+      <ellipse cx="400" cy="150" rx="100" ry="25"/>
+      <ellipse cx="180" cy="80" rx="200" ry="60"/>
+      <ellipse cx="180" cy="80" rx="140" ry="42"/>
+      <ellipse cx="620" cy="220" rx="180" ry="55"/>
+      <ellipse cx="620" cy="220" rx="120" ry="36"/>
+    </g>
+  </svg>
+
+  <div class="container hero-inner">
+    <h1 id="hero-heading">Know what's in your tap water.</h1>
+    <p>Enter your address or zip code to instantly see your water system's safety record — straight from the EPA's Safe Drinking Water Act database. No sign-up. No cost.</p>
+
+    <div class="hero-data-note">Live data from EPA Envirofacts · Updated monthly · Covers 300,000+ US water systems</div>
+
+    <div class="search-box" role="search">
+      <label class="search-label" for="address-input">Your address or zip code</label>
+      <div class="search-row">
+        <input
+          type="text" id="address-input"
+          class="search-input"
+          placeholder="e.g. 76201 or 123 Main St, Sherman, TX"
+          autocomplete="postal-code"
+          aria-label="Enter your address or zip code"
+        >
+        <button class="search-btn" id="search-btn" onclick="handleSearch()" aria-label="Check water quality">
+          Check water
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" fill="currentColor" aria-hidden="true">
+    <path d="M0 30 Q180 0 360 30 Q540 60 720 30 Q900 0 1080 30 Q1260 60 1440 30 L1440 60 L0 60 Z"/>
+  </svg>
+</section>
+
+<!-- Main -->
+<main>
+  <div class="container">
+    <div id="app-root">
+      <!-- Welcome state -->
+      <div class="welcome" id="welcome-state">
+        <p class="welcome-headline">Is your water safe?</p>
+        <p>Millions of Americans drink water that has violated federal safety standards — and most never know. WellWater pulls directly from the EPA's national database to show you what violations your water system has had, what contaminants you should test for, and how to contact your representative if your water is at risk.</p>
+
+        <div class="stat-highlight">
+          <strong>70M+</strong> Americans were served by water systems with health-based violations in the past 5 years
+        </div>
+
+        <p>Try an example:</p>
+        <div class="examples" role="list">
+          <button class="example-chip" role="listitem" onclick="searchExample('76201')">Sherman, TX (Grayson Co.)</button>
+          <button class="example-chip" role="listitem" onclick="searchExample('75201')">Dallas, TX</button>
+          <button class="example-chip" role="listitem" onclick="searchExample('30301')">Atlanta, GA</button>
+          <button class="example-chip" role="listitem" onclick="searchExample('48201')">Detroit, MI</button>
+          <button class="example-chip" role="listitem" onclick="searchExample('85001')">Phoenix, AZ</button>
+          <button class="example-chip" role="listitem" onclick="searchExample('10001')">New York, NY</button>
+        </div>
+      </div>
+
+      <!-- Loading state (hidden) -->
+      <div class="loading-state" id="loading-state" style="display:none" aria-live="polite" aria-label="Loading water quality data">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <p id="loading-msg">Looking up your water system…</p>
+      </div>
+
+      <!-- Error state (hidden) -->
+      <div class="error-state" id="error-state" style="display:none" role="alert"></div>
+
+      <!-- Results (hidden) -->
+      <div class="results" id="results-state" style="display:none" aria-live="polite"></div>
+    </div>
+  </div>
+</main>
+
+<!-- Constituent report modal -->
+<div class="modal-backdrop" id="report-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h2 id="modal-title">Constituent letter</h2>
+    <p style="font-size:13px;color:var(--text-3);margin-bottom:1rem;">This letter was generated from real EPA data about your water system. You can copy it or open it in your email client.</p>
+    <div class="modal-letter" id="modal-letter-text"></div>
+    <div class="modal-actions">
+      <button class="btn-copy" onclick="copyLetter()">Copy letter</button>
+      <button class="btn-email" onclick="emailLetter()">Open in email</button>
+      <button class="btn-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────
+// In development: server runs on localhost:3000 and serves this file.
+// In production on Vercel: same origin, so /api/* just works.
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : '';  // same-origin in production
+
+// ── State ───────────────────────────────────────────────────────
+let currentSystem = null;
+let currentViolations = [];
+let currentZip = '';
+let currentPwsid = null;
+
+// ── API client — all data fetching goes through the backend ─────
+async function fetchWaterData(zip) {
+  setLoading('Searching EPA database for your water system…');
+
+  const res = await fetch(`${API_BASE}/api/water/${zip}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    // Pass the backend's error message directly to the user
+    throw new Error(data.message || 'Could not fetch water data. Please try again.');
+  }
+
+  setLoading('Loaded — rendering your water report…');
+  return data;
+}
+
+// ── Risk explanation (pure UI copy — risk level computed server-side) ──
+function riskExplanation(risk, stats, sysName) {
+  const { healthBasedOpen: ho, healthBasedTotal: ht, monitoringOpen: mo } = stats;
+  if (risk.level === 'critical') return `<strong>${sysName}</strong> has ${ho} unresolved health-based violations — contaminants may exceed federal safety limits right now. Consider filtered or bottled water until resolved.`;
+  if (risk.level === 'high')     return `<strong>${sysName}</strong> has ${ho} unresolved health-based violation${ho > 1 ? 's' : ''}. The utility is required to notify you. Check your Consumer Confidence Report and consider home filtration.`;
+  if (risk.level === 'moderate' && ht > 0) return `<strong>${sysName}</strong> had ${ht} health-based violation${ht > 1 ? 's' : ''} — all now resolved. Water currently meets standards, but past issues make home testing worthwhile.`;
+  if (risk.level === 'moderate') return `<strong>${sysName}</strong> has ${mo} monitoring violation${mo > 1 ? 's' : ''} — the utility missed required testing deadlines. This doesn't confirm contamination, but full safety can't be guaranteed.`;
+  return `<strong>${sysName}</strong> has no violations on record. Your water system is meeting federal Safe Drinking Water Act standards.`;
+}
+
+// ── Render results ──────────────────────────────────────────────
+// Receives the normalised backend payload — no raw EPA fields.
+function renderResults(payload) {
+  const { system, violations, risk, stats, tests } = payload;
+
+  currentSystem    = system;
+  currentViolations = violations;
+  currentPwsid     = system.pwsid;
+
+  const name  = system.name;
+  const pop   = system.population ? system.population.toLocaleString() : 'Unknown';
+  const src   = sourceLabel(system.sourceCode);
+  const type  = typeLabel(system.type);
+  const loc   = [system.city, system.state].filter(Boolean).join(', ');
+
+  // Violation timeline — backend already sorted open health-based first
+  const timelineHTML = violations.length === 0
+    ? `<div class="no-violations">
+        <strong>No violations found in the last 5 years.</strong><br>
+        Your water system is meeting federal Safe Drinking Water Act standards.
+       </div>`
+    : violations.slice(0, 12).map(v => {
+        const dotClass = v.isOpen ? v.category : 'resolved';
+        const catLabel = { health: 'Health-based', monitoring: 'Monitoring', other: 'Reporting' }[v.category] || 'Violation';
+        const endStr   = v.endDate ? ` · Resolved ${formatDate(v.endDate)}` : '';
+        return `
+          <div class="timeline-item" role="listitem">
+            <div class="timeline-dot ${dotClass}" aria-hidden="true"></div>
+            <div class="viol-card">
+              <div class="viol-header">
+                <span class="viol-name">${escHtml(v.contaminant)}</span>
+                <span class="viol-status ${v.isOpen ? 'open' : 'resolved'}">${v.isOpen ? 'Open' : 'Resolved'}</span>
+              </div>
+              <div class="viol-meta">Started ${formatDate(v.startDate)}${endStr}</div>
+              <span class="viol-type-chip ${v.category}">${catLabel}</span>
+            </div>
+          </div>`;
+      }).join('')
+    + (violations.length > 12 ? `<p style="font-size:13px;color:var(--text-3);padding-left:4px;margin-top:8px">+ ${violations.length - 12} more violations on record</p>` : '');
+
+  const testHTML = tests.map(t => `
+    <div class="test-item" role="listitem">
+      <strong>${escHtml(t.name)}</strong>
+      ${escHtml(t.reason)}
+    </div>`).join('');
+
+  const showReportBtn = stats.healthBasedOpen > 0 || stats.healthBasedTotal > 0;
+  const reportHTML = showReportBtn
+    ? `<div class="report-section">
+        <h3>Your water has had safety violations — your representative should know.</h3>
+        <p>Under the Safe Drinking Water Act, elected officials are accountable for safe water. WellWater generates a pre-written letter with the real EPA data about your system attached.</p>
+        <button class="report-btn" onclick="openReportModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v12H4z"/><path d="M4 8l8 5 8-5"/></svg>
+          Generate constituent letter
+        </button>
+      </div>` : '';
+
+  const nc = n => n === 0 ? 'good' : n >= 3 ? 'bad' : 'warn';
+
+  document.getElementById('results-state').innerHTML = `
+    <div class="system-header">
+      <div>
+        <div class="system-name">${escHtml(name)}</div>
+        <div class="system-meta">${[loc, type, `Serves ${pop} people`, src].filter(Boolean).join(' · ')}</div>
+        <span class="pwsid-badge">PWSID: ${escHtml(system.pwsid)}</span>
+      </div>
+    </div>
+
+    <div class="risk-card ${risk.level}" role="region" aria-label="Risk assessment">
+      <div class="risk-inner">
+        <div class="risk-score-display">
+          <div class="risk-level-word">${risk.label}</div>
+          <div class="risk-label">health risk</div>
+        </div>
+        <div class="risk-divider" aria-hidden="true"></div>
+        <div class="risk-explanation">${riskExplanation(risk, stats, name)}</div>
+      </div>
+    </div>
+
+    <div class="stats-row" role="region" aria-label="Violation summary">
+      <div class="stat-box">
+        <div class="stat-num ${nc(stats.healthBasedOpen)}">${stats.healthBasedOpen}</div>
+        <div class="stat-desc">Open health-based violations right now</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num ${stats.healthBasedTotal > 0 ? 'warn' : 'good'}">${stats.healthBasedTotal}</div>
+        <div class="stat-desc">Health-based violations (last 5 years)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num ${stats.total > 0 ? 'warn' : 'good'}">${stats.total}</div>
+        <div class="stat-desc">Total violations on record</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">${pop}</div>
+        <div class="stat-desc">People served by this system</div>
+      </div>
+    </div>
+
+    ${reportHTML}
+
+    <div class="section-heading">Violation history</div>
+    <div class="timeline" role="list" aria-label="Violation timeline">
+      ${timelineHTML}
+    </div>
+
+    <div class="section-heading">What to test for at home</div>
+    <div class="test-grid" role="list" aria-label="Recommended home water tests">
+      ${testHTML}
+    </div>
+
+    <div class="data-footer">
+      <strong>Data source:</strong> U.S. EPA Safe Drinking Water Information System (SDWIS) via
+      <a href="https://data.epa.gov/efservice/" target="_blank" rel="noopener">EPA Envirofacts</a>.
+      Updated monthly. WellWater does not modify EPA data.
+      PWSID: ${escHtml(system.pwsid)}.
+      This tool does not replace your utility's Consumer Confidence Report or official boil-water notices.
+      <a href="https://www.epa.gov/ccr" target="_blank" rel="noopener">Find your CCR →</a>
+    </div>
+  `;
+
+  show('results');
+}
+
+// ── Constituent report modal ────────────────────────────────────
+async function openReportModal() {
+  if (!currentPwsid) return;
+
+  document.getElementById('modal-letter-text').textContent = 'Generating letter from EPA data…';
+  document.getElementById('report-modal').classList.add('open');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/report/${currentPwsid}`);
+    if (res.status === 204) {
+      document.getElementById('modal-letter-text').textContent =
+        'No health-based violations found — no letter is needed for this water system.';
+      return;
+    }
+    if (!res.ok) throw new Error('Could not generate letter.');
+    const text = await res.text();
+    document.getElementById('modal-letter-text').textContent = text;
+  } catch (err) {
+    document.getElementById('modal-letter-text').textContent =
+      'Could not load letter. Check your connection and try again.';
+  }
+}
+
+function closeModal() {
+  document.getElementById('report-modal').classList.remove('open');
+}
+
+function copyLetter() {
+  const text = document.getElementById('modal-letter-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy letter', 2000);
+  });
+}
+
+function emailLetter() {
+  const text = document.getElementById('modal-letter-text').textContent;
+  const subject = encodeURIComponent('Water Safety Concern — EPA Violation Record');
+  const body = encodeURIComponent(text);
+  window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+document.getElementById('report-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('report-modal')) closeModal();
+});
+
+// ── Helpers ─────────────────────────────────────────────────────
+function sourceLabel(code) {
+  const map = {
+    GW: 'Groundwater', SW: 'Surface water',
+    GWP: 'Purchased groundwater', SWP: 'Purchased surface water',
+    GU: 'Groundwater (surface influence)', GUP: 'Purchased groundwater (surface influence)',
+  };
+  return map[(code || '').toUpperCase()] || code || null;
+}
+
+function typeLabel(code) {
+  const map = {
+    CWS: 'Community water system',
+    NTNCWS: 'Non-transient non-community',
+    TNCWS: 'Transient non-community',
+  };
+  return map[(code || '').toUpperCase()] || code || 'Water system';
+}
+
+function formatDate(str) {
+  if (!str) return 'Unknown date';
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function setLoading(msg) {
+  document.getElementById('loading-msg').textContent = msg;
+}
+
+function show(state) {
+  ['welcome-state','loading-state','error-state','results-state'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById(state + '-state').style.display = state === 'loading' ? 'block' : (state === 'results' ? 'block' : 'block');
+}
+
+// ── Search ───────────────────────────────────────────────────────
+async function handleSearch() {
+  const raw = document.getElementById('address-input').value.trim();
+  if (!raw) { document.getElementById('address-input').focus(); return; }
+
+  // Accept a standalone zip or extract one from a full address
+  let zip = '';
+  const match = raw.match(/\b(\d{5})\b/);
+  if (match) {
+    zip = match[1];
+  } else {
+    zip = raw.replace(/\D/g, '').slice(0, 5);
+  }
+
+  if (zip.length !== 5) {
+    show('error');
+    document.getElementById('error-state').textContent =
+      'Please enter a valid 5-digit US zip code, or a full address that includes one (e.g. "123 Main St, Sherman TX 76201").';
+    document.getElementById('error-state').style.display = 'block';
+    return;
+  }
+
+  currentZip = zip;
+  document.getElementById('search-btn').disabled = true;
+  show('loading');
+  document.getElementById('error-state').style.display = 'none';
+
+  try {
+    const payload = await fetchWaterData(zip);
+    renderResults(payload);
+  } catch (err) {
+    document.getElementById('error-state').textContent =
+      err.message || 'Something went wrong. Please try again.';
+    document.getElementById('error-state').style.display = 'block';
+    show('welcome');
+  } finally {
+    document.getElementById('search-btn').disabled = false;
+  }
+}
+
+function searchExample(zip) {
+  document.getElementById('address-input').value = zip;
+  handleSearch();
+}
+
+document.getElementById('address-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSearch();
+});
+</script>
+</body>
+</html>

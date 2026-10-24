@@ -1,0 +1,22 @@
+{
+  "name": "wellwater-backend",
+  "version": "1.0.0",
+  "description": "WellWater — EPA drinking water safety lookup API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
